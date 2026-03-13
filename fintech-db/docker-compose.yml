@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg18-trixie
+    container_name: fintech-postgres
+    environment:
+      POSTGRES_DB: fintech
+      POSTGRES_USER: fintech
+      POSTGRES_PASSWORD: fintech
+    ports:
+      - "5433:5432"
+    volumes:
+      - fintech-25-11-pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fintech -d fintech"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  flyway-migrate:
+    image: maven:3.9-eclipse-temurin-25
+    container_name: fintech-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /project
+    volumes:
+      - .:/project       # mount your repo into the container
+    command: >
+      mvn clean install flyway:migrate -Denv=local -Durl=jdbc:postgresql://postgres:5432/fintech -Duser=fintech -Dpassword=fintech
+
+volumes:
+  fintech-25-11-pgdata:
