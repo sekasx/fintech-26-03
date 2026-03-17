@@ -1,9 +1,7 @@
 package dev.ctrlspace.fintech2506.fintechbe.services;
 
+import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.*;
 import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.ChatCompletionResponse;
-import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.ChatCompletionResponse;
-import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.MessageDTO;
-import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.RequestDTO;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.Agent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -69,5 +67,29 @@ public class CompletionsApiService {
         ChatCompletionResponse responseBody = (ChatCompletionResponse) response.getBody();
 
         return responseBody;
+    }
+
+
+    public EmbeddingResponseDTO getEmbedding(String url, String input, String model) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", "Bearer " + apiKey);
+
+        EmbeddingRequestDTO requestBody = EmbeddingRequestDTO.builder()
+                .input(input)
+                .model(model)
+                .build();
+
+        HttpEntity<EmbeddingRequestDTO> request = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<EmbeddingResponseDTO> response = restTemplate.postForEntity(
+                url,
+                request,
+                EmbeddingResponseDTO.class
+        );
+
+        return response.getBody();
     }
 }

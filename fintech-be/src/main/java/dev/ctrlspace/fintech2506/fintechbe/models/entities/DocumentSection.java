@@ -1,10 +1,11 @@
 package dev.ctrlspace.fintech2506.fintechbe.models.entities;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.*;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,9 +30,15 @@ public class DocumentSection {
     @Column(name = "content", nullable = false, length = Integer.MAX_VALUE)
     private String content;
 
+    @Type(JsonType.class)
+    @Column(name = "embedding", columnDefinition = "vector")
+    private List<Double> embedding;
+
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -69,6 +76,14 @@ public class DocumentSection {
 
     public String getContent() {
         return content;
+    }
+
+    public List<Double> getEmbedding() {
+        return embedding;
+    }
+
+    public void setEmbedding(List<Double> embedding) {
+        this.embedding = embedding;
     }
 
     public void setContent(String content) {
