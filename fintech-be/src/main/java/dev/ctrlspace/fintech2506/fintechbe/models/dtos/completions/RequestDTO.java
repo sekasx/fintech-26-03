@@ -1,5 +1,6 @@
 package dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,7 +27,6 @@ public class RequestDTO {
     private Integer maxCompletionTokens;
     @JsonProperty("temperature")
     private Double temperature;
-
 
     @JsonProperty("tool_choice")
     private  String toolChoice;

@@ -47,6 +47,13 @@ public class CompletionsApiService {
                 .toolChoice("auto")
                 .tools(tools)
                 .build();
+
+        if (tools == null) {
+            requestBody.setToolChoice(null);
+        }
+
+
+
         requestBody.getMessages().add(MessageDTO.builder()
                 .role("system")
                 .content(systemPrompt)

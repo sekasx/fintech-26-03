@@ -1,6 +1,8 @@
 package dev.ctrlspace.fintech2506.fintechbe.services;
 
+import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.ChatCompletionResponse;
 import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.EmbeddingResponseDTO;
+import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.MessageDTO;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.Account;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.Document;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.DocumentSection;
@@ -25,7 +27,10 @@ public class DocumentService {
     private CompletionsApiService completionsApiService;
 
     private String OPENAI_EMBEDDING_URL = "https://api.openai.com/v1/embeddings";
+    private String OPENAI_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions";
     private String EMBEDDING_MODEL = "text-embedding-3-small";
+    private String COMPLETIONS_MODEL = "gpt-5-mini";
+
     @Autowired
     private DocumentRepository documentRepository;
 
@@ -80,8 +85,53 @@ public class DocumentService {
     }
 
 
+    public MessageDTO ragCompletion(String question) {
+
+        List<DocumentSection> sections = searchDocuments(question);
+
+        StringBuilder context = new StringBuilder();
+        context.append("<retrieved-documents>").append("\n");
+
+        for (int i = 0; i < sections.size(); i++) {
+            context.append("   <section-").append(i + 1).append(">\n");
+            context.append("      ").append(sections.get(i).getContent()).append("\n");
+            context.append("   </section-").append(i + 1).append(">\n");
+        }
+
+        context.append("</retrieved-documents>").append("\n\n\n");
+
+        context.append("User question:").append("\n");
+        context.append(question).append("\n");
+
+        String finalQuestion = context.toString();
 
 
+        MessageDTO messageDTO = MessageDTO.builder()
+                .role("user")
+                .content(finalQuestion)
+                .build();
+        List<MessageDTO> messages = List.of(messageDTO);
 
+        String systemPrompt = """
+                You are a helpful assistant, that helps users to answer questions based on the provided retrieved documents. 
+                The retrieved documents are between <retrieved-documents> tags, each section is between <section-x> tags. 
+                Use the provided retrieved documents to answer the question as best as you can. If you dont know the answer, say you dont know.
+                """;
+        ChatCompletionResponse response = completionsApiService.getCompletion(OPENAI_COMPLETIONS_URL, COMPLETIONS_MODEL, messages, 1.0, 500, systemPrompt, null);
 
+        MessageDTO responseMessageDTO = MessageDTO.builder()
+                .role("assistant")
+                .content(response.getChoices().get(0).getMessage().getContent())
+                .build();
+        return responseMessageDTO;
+
+    }
 }
+
+
+
+
+
+
+
+

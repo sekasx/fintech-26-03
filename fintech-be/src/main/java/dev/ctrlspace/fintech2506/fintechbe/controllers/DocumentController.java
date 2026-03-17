@@ -1,5 +1,6 @@
 package dev.ctrlspace.fintech2506.fintechbe.controllers;
 
+import dev.ctrlspace.fintech2506.fintechbe.models.dtos.completions.MessageDTO;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.Document;
 import dev.ctrlspace.fintech2506.fintechbe.models.entities.DocumentSection;
 import dev.ctrlspace.fintech2506.fintechbe.services.DocumentService;
@@ -34,6 +35,10 @@ public class DocumentController {
         return documentService.searchDocuments(text);
     }
 
+    @PostMapping("/rag")
+    public MessageDTO ragCompletion(@RequestParam("text") String text) {
+        return documentService.ragCompletion(text);
+    }
 
 }
 
